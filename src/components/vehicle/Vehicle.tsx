@@ -91,7 +91,7 @@ export function Vehicle() {
 
     const spin = s.speed * dt * 2.2;
     for (const wheel of wheelsRef.current) {
-      if (wheel) wheel.rotation.x -= spin;
+      if (wheel) wheel.rotation.y -= spin;
     }
 
     // Chase camera
