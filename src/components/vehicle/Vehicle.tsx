@@ -179,18 +179,25 @@ export function Vehicle() {
             key={`${x}-${z}`}
             position={[x, 0.05, z]}
             rotation={[0, 0, Math.PI / 2]}
-            ref={(el) => {
-              if (el) wheelsRef.current[i] = el;
-            }}
           >
-            <mesh castShadow>
-              <cylinderGeometry args={[0.52, 0.52, 0.38, 14]} />
-              <meshStandardMaterial color="#121820" roughness={0.85} />
-            </mesh>
-            <mesh position={[0, 0.2, 0]}>
-              <cylinderGeometry args={[0.24, 0.24, 0.04, 10]} />
-              <meshStandardMaterial color="#9fb4c4" metalness={0.7} roughness={0.3} />
-            </mesh>
+            <group
+              ref={(el) => {
+                if (el) wheelsRef.current[i] = el;
+              }}
+            >
+              <mesh castShadow>
+                <cylinderGeometry args={[0.52, 0.52, 0.38, 14]} />
+                <meshStandardMaterial color="#121820" roughness={0.85} />
+              </mesh>
+              <mesh position={[0, 0.2, 0]}>
+                <cylinderGeometry args={[0.24, 0.24, 0.04, 10]} />
+                <meshStandardMaterial
+                  color="#9fb4c4"
+                  metalness={0.7}
+                  roughness={0.3}
+                />
+              </mesh>
+            </group>
           </group>
         ))}
       </group>
