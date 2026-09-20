@@ -3,11 +3,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useKeyboard } from "@/hooks/useKeyboard";
 import { useGameStore } from "@/store/useGameStore";
-import {
-  createVehicleState,
-  updateVehicle,
-  type Obstacle,
-} from "@/lib/vehiclePhysics";
+import { createVehicleState, updateVehicle, type Obstacle } from "@/lib/vehiclePhysics";
 import { updateEngine } from "@/lib/audio";
 import { WORLD_BOUND, eggPosition, zones } from "@/data/zones";
 import type { SectionId } from "@/data/portfolio";
@@ -85,8 +81,7 @@ export function Vehicle() {
 
     if (leanRef.current) {
       const targetRoll = -s.slip * 0.18;
-      leanRef.current.rotation.z +=
-        (targetRoll - leanRef.current.rotation.z) * 6 * dt;
+      leanRef.current.rotation.z += (targetRoll - leanRef.current.rotation.z) * 6 * dt;
     }
 
     const spin = s.speed * dt * 2.2;
@@ -115,10 +110,7 @@ export function Vehicle() {
     }
     store.setNearby(nearest);
 
-    if (
-      !store.eggFound &&
-      Math.hypot(s.px - eggPosition[0], s.pz - eggPosition[1]) < 7
-    ) {
+    if (!store.eggFound && Math.hypot(s.px - eggPosition[0], s.pz - eggPosition[1]) < 7) {
       store.findEgg();
     }
 
@@ -136,11 +128,7 @@ export function Vehicle() {
         {/* cabin */}
         <mesh castShadow position={[0, 0.95, -0.15]}>
           <boxGeometry args={[1.65, 0.7, 1.9]} />
-          <meshStandardMaterial
-            color={CABIN_COLOR}
-            metalness={0.6}
-            roughness={0.15}
-          />
+          <meshStandardMaterial color={CABIN_COLOR} metalness={0.6} roughness={0.15} />
         </mesh>
         {/* nose spoiler */}
         <mesh castShadow position={[0, 0.2, 2.05]}>
@@ -151,35 +139,25 @@ export function Vehicle() {
         {[-0.65, 0.65].map((x) => (
           <mesh key={x} position={[x, 0.45, 2.02]}>
             <boxGeometry args={[0.45, 0.18, 0.12]} />
-            <meshStandardMaterial
-              color="#fff3d0"
-              emissive="#ffd88a"
-              emissiveIntensity={1.4}
-            />
+            <meshStandardMaterial color="#fff3d0" emissive="#ffd88a" emissiveIntensity={1.4} />
           </mesh>
         ))}
         {/* tail lights */}
         {[-0.7, 0.7].map((x) => (
           <mesh key={x} position={[x, 0.5, -2.02]}>
             <boxGeometry args={[0.4, 0.16, 0.1]} />
-            <meshStandardMaterial
-              color="#ff6b6b"
-              emissive="#ff3b3b"
-              emissiveIntensity={1.1}
-            />
+            <meshStandardMaterial color="#ff6b6b" emissive="#ff3b3b" emissiveIntensity={1.1} />
           </mesh>
         ))}
-        {[
-          [-1.05, 1.3],
-          [1.05, 1.3],
-          [-1.05, -1.3],
-          [1.05, -1.3],
-        ].map(([x, z], i) => (
-          <group
-            key={`${x}-${z}`}
-            position={[x, 0.05, z]}
-            rotation={[0, 0, Math.PI / 2]}
-          >
+        {(
+          [
+            [-1.05, 1.3],
+            [1.05, 1.3],
+            [-1.05, -1.3],
+            [1.05, -1.3],
+          ] as [number, number][]
+        ).map(([x, z], i) => (
+          <group key={`${x}-${z}`} position={[x, 0.05, z]} rotation={[0, 0, Math.PI / 2]}>
             <group
               ref={(el) => {
                 if (el) wheelsRef.current[i] = el;
@@ -191,11 +169,7 @@ export function Vehicle() {
               </mesh>
               <mesh position={[0, 0.2, 0]}>
                 <cylinderGeometry args={[0.24, 0.24, 0.04, 10]} />
-                <meshStandardMaterial
-                  color="#9fb4c4"
-                  metalness={0.7}
-                  roughness={0.3}
-                />
+                <meshStandardMaterial color="#9fb4c4" metalness={0.7} roughness={0.3} />
               </mesh>
             </group>
           </group>

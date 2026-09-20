@@ -1,13 +1,6 @@
 import type { SectionId } from "./portfolio";
 
-export type ZoneKind =
-  | "campus"
-  | "office"
-  | "lab"
-  | "studio"
-  | "tower"
-  | "monument"
-  | "beacon";
+export type ZoneKind = "campus" | "office" | "lab" | "studio" | "tower" | "monument" | "beacon";
 
 export interface Zone {
   id: SectionId;

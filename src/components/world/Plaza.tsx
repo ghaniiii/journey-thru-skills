@@ -9,11 +9,19 @@ import { useGameStore } from "@/store/useGameStore";
 /** Spawn area: welcome sign, hovering marker, and the hidden easter egg. */
 export function Plaza() {
   const markerRef = useRef<THREE.Mesh>(null);
+  const signRef = useRef<HTMLDivElement>(null);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (markerRef.current) {
       markerRef.current.rotation.y = clock.elapsedTime * 0.6;
       markerRef.current.position.y = 7 + Math.sin(clock.elapsedTime) * 0.3;
+    }
+    if (signRef.current) {
+      // Fade the welcome sign out once the visitor drives away from the plaza.
+      const d = Math.hypot(camera.position.x, camera.position.z);
+      const o = THREE.MathUtils.clamp(1 - (d - 22) / 16, 0, 1);
+      signRef.current.style.opacity = `${o}`;
+      signRef.current.style.visibility = o < 0.02 ? "hidden" : "visible";
     }
   });
 
@@ -35,8 +43,8 @@ export function Plaza() {
         <meshStandardMaterial color="#25333c" roughness={0.7} />
       </mesh>
 
-      <Html position={[0, 10.2, 0]} center distanceFactor={30} wrapperClass="pointer-events-none">
-        <div className="plaza-sign">
+      <Html position={[0, 10.2, 0]} center distanceFactor={26} wrapperClass="pointer-events-none">
+        <div className="plaza-sign" ref={signRef}>
           <span className="plaza-sign__name">{portfolio.personal.name}</span>
           <span className="plaza-sign__title">{portfolio.personal.title}</span>
           <span className="plaza-sign__hint">

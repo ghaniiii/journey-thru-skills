@@ -38,11 +38,7 @@ export function Ground() {
       </mesh>
       <mesh rotation-x={-Math.PI / 2} position={[0, 0.04, 0]}>
         <ringGeometry args={[13, 13.6, 48]} />
-        <meshStandardMaterial
-          color="#4fd6e0"
-          emissive="#2fb6c4"
-          emissiveIntensity={0.6}
-        />
+        <meshStandardMaterial color="#4fd6e0" emissive="#2fb6c4" emissiveIntensity={0.6} />
       </mesh>
 
       {/* Spoke roads to each district */}

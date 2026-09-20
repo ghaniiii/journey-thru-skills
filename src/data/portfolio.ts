@@ -59,8 +59,7 @@ export const portfolio = {
 
   education: [
     {
-      institution:
-        "National University of Computer and Emerging Sciences (FAST), Peshawar",
+      institution: "National University of Computer and Emerging Sciences (FAST), Peshawar",
       credential: "BS in Computer Science",
       period: "Aug 2022 – May 2026",
       detail: "CGPA 3.84 / 4.00",
@@ -140,9 +139,7 @@ export const portfolio = {
       role: "Teaching Assistant – Digital Logic Design & Physics",
       organization: "FAST Peshawar (Asst. Prof. Muhammad Asif Khan)",
       period: "Spring & Fall 2024",
-      points: [
-        "Assisted in coursework delivery, grading, lab activities and student mentoring.",
-      ],
+      points: ["Assisted in coursework delivery, grading, lab activities and student mentoring."],
     },
   ] satisfies ExperienceItem[],
 
@@ -207,8 +204,7 @@ export const portfolio = {
 
   research: [
     {
-      title:
-        "Noise-resilient quantum data provenance for synchrophasor networks",
+      title: "Noise-resilient quantum data provenance for synchrophasor networks",
       lab: "Quantum Information Lab, FAST University, Peshawar",
       supervisor: "Dr. Maqsood Khan",
       period: "Jan 2026 – Jun 2026",

@@ -93,8 +93,5 @@ export function updateVehicle(
 
   s.speed = Math.hypot(s.vx, s.vz);
   const va = Math.atan2(s.vx, s.vz);
-  s.slip =
-    s.speed > 0.4 && vLong > 0
-      ? Math.atan2(Math.sin(va - s.yaw), Math.cos(va - s.yaw))
-      : 0;
+  s.slip = s.speed > 0.4 && vLong > 0 ? Math.atan2(Math.sin(va - s.yaw), Math.cos(va - s.yaw)) : 0;
 }

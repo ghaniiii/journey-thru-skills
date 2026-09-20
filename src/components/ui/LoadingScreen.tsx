@@ -9,9 +9,14 @@ export function LoadingScreen({ onEnter }: Props) {
   const [progress, setProgress] = useState(6);
 
   useEffect(() => {
+    // Time-based so a busy first frame can never stall the progress bar.
+    const start = performance.now();
+    const duration = 2200;
     const id = window.setInterval(() => {
-      setProgress((p) => (p >= 100 ? 100 : Math.min(100, p + 4 + Math.random() * 9)));
-    }, 90);
+      const pct = Math.min(100, 6 + ((performance.now() - start) / duration) * 94);
+      setProgress(pct);
+      if (pct >= 100) window.clearInterval(id);
+    }, 80);
     return () => window.clearInterval(id);
   }, []);
 
@@ -59,8 +64,7 @@ export function LoadingScreen({ onEnter }: Props) {
           {ready ? "Enter the world" : "Preparing…"}
         </button>
         <p className="loading__note">
-          Prefer to read? Open the menu once inside for direct access to every
-          section.
+          Prefer to read? Open the menu once inside for direct access to every section.
         </p>
       </div>
     </div>
