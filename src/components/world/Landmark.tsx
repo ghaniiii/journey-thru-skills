@@ -89,18 +89,12 @@ function BuildingShape({ zone }: { zone: Zone }) {
     </mesh>
   );
 
-  const stripes = Array.from({ length: Math.max(2, Math.floor(h / 3)) }).map(
-    (_, i) => (
-      <mesh key={i} position={[0, 1.6 + i * 3, d / 2 + 0.03]}>
-        <planeGeometry args={[w * 0.72, 0.5]} />
-        <meshStandardMaterial
-          color={zone.color}
-          emissive={zone.color}
-          emissiveIntensity={0.55}
-        />
-      </mesh>
-    ),
-  );
+  const stripes = Array.from({ length: Math.max(2, Math.floor(h / 3)) }).map((_, i) => (
+    <mesh key={i} position={[0, 1.6 + i * 3, d / 2 + 0.03]}>
+      <planeGeometry args={[w * 0.72, 0.5]} />
+      <meshStandardMaterial color={zone.color} emissive={zone.color} emissiveIntensity={0.55} />
+    </mesh>
+  ));
 
   return (
     <group>
@@ -142,11 +136,7 @@ function BuildingShape({ zone }: { zone: Zone }) {
         [-1, 1].map((s) => (
           <mesh key={s} position={[s * (w / 2 + 1.4), 1.6, 0]} castShadow>
             <cylinderGeometry args={[0.6, 0.8, 3.2, 12]} />
-            <meshStandardMaterial
-              color="#ffd166"
-              metalness={0.75}
-              roughness={0.25}
-            />
+            <meshStandardMaterial color="#ffd166" metalness={0.75} roughness={0.25} />
           </mesh>
         ))}
       {zone.kind === "beacon" && (

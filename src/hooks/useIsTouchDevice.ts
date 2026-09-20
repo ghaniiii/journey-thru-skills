@@ -6,9 +6,7 @@ export function useIsTouchDevice() {
 
   useEffect(() => {
     const check = () =>
-      setIsTouch(
-        window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 900,
-      );
+      setIsTouch(window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 900);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);

@@ -53,7 +53,6 @@ export function Plaza() {
         </div>
       </Html>
 
-
       <EasterEgg />
     </group>
   );

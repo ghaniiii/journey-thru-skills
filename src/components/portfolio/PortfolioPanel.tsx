@@ -28,12 +28,7 @@ export function PortfolioPanel({ id, onClose }: Props) {
             <p className="panel__eyebrow">Portfolio</p>
             <h2 className="panel__title">{sectionLabels[id]}</h2>
           </div>
-          <button
-            ref={closeRef}
-            type="button"
-            className="btn btn--ghost"
-            onClick={onClose}
-          >
+          <button ref={closeRef} type="button" className="btn btn--ghost" onClick={onClose}>
             Close (Esc)
           </button>
         </header>

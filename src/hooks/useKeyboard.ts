@@ -1,12 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const PREVENT = new Set([
-  "ArrowUp",
-  "ArrowDown",
-  "ArrowLeft",
-  "ArrowRight",
-  "Space",
-]);
+const PREVENT = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"]);
 
 /** Tracks physically-held keys by `event.code`. Read the ref inside useFrame. */
 export function useKeyboard() {
@@ -17,9 +11,7 @@ export function useKeyboard() {
       const target = e.target as HTMLElement | null;
       const typing =
         target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable);
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
       if (typing) return;
       keys.current.add(e.code);
       if (PREVENT.has(e.code)) e.preventDefault();

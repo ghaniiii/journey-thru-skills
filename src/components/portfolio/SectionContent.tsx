@@ -173,12 +173,7 @@ export function Contact() {
           <a className="btn btn--primary" href={`mailto:${p.email}`}>
             Email {p.email}
           </a>
-          <a
-            className="btn"
-            href={p.linkedin}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
+          <a className="btn" href={p.linkedin} target="_blank" rel="noreferrer noopener">
             LinkedIn profile
           </a>
           <a className="btn" href={`tel:${p.phone.replace(/\s/g, "")}`}>
@@ -207,12 +202,7 @@ export function Home() {
           <a className="btn btn--accent" href={p.cv} download>
             Download CV (PDF)
           </a>
-          <a
-            className="btn"
-            href={p.linkedin}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
+          <a className="btn" href={p.linkedin} target="_blank" rel="noreferrer noopener">
             LinkedIn
           </a>
         </div>

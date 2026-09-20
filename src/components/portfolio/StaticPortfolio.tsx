@@ -29,12 +29,7 @@ export function StaticPortfolio({ reason }: { reason?: string }) {
           <a className="btn" href={`mailto:${p.email}`}>
             {p.email}
           </a>
-          <a
-            className="btn"
-            href={p.linkedin}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
+          <a className="btn" href={p.linkedin} target="_blank" rel="noreferrer noopener">
             LinkedIn
           </a>
         </div>

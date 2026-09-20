@@ -29,17 +29,17 @@ function scatter(count: number, seed: number, minRadius: number): Placed[] {
     if (Math.hypot(x, z) < minRadius) continue;
     // Keep clear of district footprints and their roads.
     if (
-      zones.some(
-        (zone) =>
-          Math.hypot(x - zone.position[0], z - zone.position[1]) <
-          zone.radius + 3,
-      )
+      zones.some((zone) => Math.hypot(x - zone.position[0], z - zone.position[1]) < zone.radius + 3)
     )
       continue;
     const angle = Math.abs(Math.atan2(x, z));
     const onSpoke = zones.some((zone) => {
       const zoneAngle = Math.atan2(zone.position[0], zone.position[1]);
-      return Math.abs(Math.atan2(Math.sin(angle - Math.abs(zoneAngle)), Math.cos(angle - Math.abs(zoneAngle)))) < 0.09;
+      return (
+        Math.abs(
+          Math.atan2(Math.sin(angle - Math.abs(zoneAngle)), Math.cos(angle - Math.abs(zoneAngle))),
+        ) < 0.09
+      );
     });
     if (onSpoke) continue;
     out.push({

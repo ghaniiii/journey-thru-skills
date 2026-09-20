@@ -27,10 +27,7 @@ export function GameCanvas() {
     return () => stopEngine();
   }, []);
 
-  const dpr = useMemo<[number, number]>(
-    () => (isTouch ? [1, 1.4] : [1, 2]),
-    [isTouch],
-  );
+  const dpr = useMemo<[number, number]>(() => (isTouch ? [1, 1.4] : [1, 2]), [isTouch]);
 
   if (webgl === false) {
     return (
@@ -57,9 +54,7 @@ export function GameCanvas() {
         <>
           <Hud />
           {isTouch && !openSection && <MobileControls />}
-          {openSection && (
-            <PortfolioPanel id={openSection} onClose={closePanel} />
-          )}
+          {openSection && <PortfolioPanel id={openSection} onClose={closePanel} />}
         </>
       ) : (
         <LoadingScreen onEnter={enterWorld} />

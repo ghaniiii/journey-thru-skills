@@ -64,8 +64,7 @@ export function LoadingScreen({ onEnter }: Props) {
           {ready ? "Enter the world" : "Preparing…"}
         </button>
         <p className="loading__note">
-          Prefer to read? Open the menu once inside for direct access to every
-          section.
+          Prefer to read? Open the menu once inside for direct access to every section.
         </p>
       </div>
     </div>
