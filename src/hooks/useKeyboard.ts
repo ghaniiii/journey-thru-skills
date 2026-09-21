@@ -1,6 +1,14 @@
 import { useEffect, useRef } from "react";
 
-const PREVENT = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"]);
+const PREVENT = new Set([
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "Space",
+  "ShiftLeft",
+  "ShiftRight",
+]);
 
 /** Tracks physically-held keys by `event.code`. Read the ref inside useFrame. */
 export function useKeyboard() {

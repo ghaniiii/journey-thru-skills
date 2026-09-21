@@ -1,17 +1,22 @@
 export interface VehicleState {
   px: number;
+  py: number;
   pz: number;
   vx: number;
+  vy: number;
   vz: number;
   yaw: number;
   slip: number;
   speed: number;
+  grounded: boolean;
+  jumpHeld: boolean;
 }
 
 export interface VehicleInput {
   forward: number;
   steer: number;
-  brake: boolean;
+  jump: boolean;
+  nitro: boolean;
 }
 
 export interface Obstacle {
@@ -23,15 +28,30 @@ export interface Obstacle {
 
 const ACCEL = 26;
 const REVERSE = 14;
-const BRAKE = 26;
 const DRAG = 1.15;
 const ROLL_RESIST = 0.9;
 const TURN = 2.3;
 const GRIP = 7.5;
 const MAX_SPEED = 34;
+const NITRO_ACCEL = 18;
+const NITRO_MAX_SPEED = 43;
+const JUMP_VELOCITY = 8.5;
+const GRAVITY = -22;
 
 export function createVehicleState(): VehicleState {
-  return { px: 0, pz: 6, vx: 0, vz: 0, yaw: Math.PI, slip: 0, speed: 0 };
+  return {
+    px: 0,
+    py: 0,
+    pz: 6,
+    vx: 0,
+    vy: 0,
+    vz: 0,
+    yaw: Math.PI,
+    slip: 0,
+    speed: 0,
+    grounded: true,
+    jumpHeld: false,
+  };
 }
 
 /** Axis-aligned overlap test for the car's footprint against static boxes. */
@@ -62,12 +82,11 @@ export function updateVehicle(
   else if (input.forward < 0) vLong += input.forward * REVERSE * dt;
   else vLong -= Math.sign(vLong) * ROLL_RESIST * dt;
 
-  if (input.brake && Math.abs(vLong) > 0.05) {
-    vLong -= Math.sign(vLong) * BRAKE * dt;
-  }
+  if (input.nitro && input.forward > 0) vLong += NITRO_ACCEL * dt;
 
   vLong -= vLong * DRAG * dt;
-  vLong = Math.max(-MAX_SPEED * 0.45, Math.min(MAX_SPEED, vLong));
+  const maxForward = input.nitro ? NITRO_MAX_SPEED : MAX_SPEED;
+  vLong = Math.max(-MAX_SPEED * 0.45, Math.min(maxForward, vLong));
   if (Math.abs(vLong) < 0.03) vLong = 0;
 
   const speedFactor = Math.min(Math.abs(vLong) / 8, 1);
@@ -90,6 +109,21 @@ export function updateVehicle(
 
   s.px = Math.max(-bound, Math.min(bound, s.px));
   s.pz = Math.max(-bound, Math.min(bound, s.pz));
+
+  if (input.jump && !s.jumpHeld && s.grounded) {
+    s.vy = JUMP_VELOCITY;
+    s.grounded = false;
+  }
+  s.jumpHeld = input.jump;
+  if (!s.grounded) {
+    s.vy += GRAVITY * dt;
+    s.py += s.vy * dt;
+    if (s.py <= 0) {
+      s.py = 0;
+      s.vy = 0;
+      s.grounded = true;
+    }
+  }
 
   s.speed = Math.hypot(s.vx, s.vz);
   const va = Math.atan2(s.vx, s.vz);
