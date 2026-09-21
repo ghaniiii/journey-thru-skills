@@ -4,7 +4,8 @@ import type { SectionId } from "@/data/portfolio";
 export interface TouchInput {
   forward: number;
   steer: number;
-  brake: boolean;
+  jump: boolean;
+  nitro: boolean;
 }
 
 interface GameState {
@@ -31,7 +32,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   visited: [],
   muted: true,
   eggFound: false,
-  touch: { forward: 0, steer: 0, brake: false },
+  touch: { forward: 0, steer: 0, jump: false, nitro: false },
   enterWorld: () => set({ entered: true }),
   setNearby: (id) => {
     if (get().nearby !== id) set({ nearby: id });

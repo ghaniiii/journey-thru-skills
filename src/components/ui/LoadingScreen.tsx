@@ -47,7 +47,11 @@ export function LoadingScreen({ onEnter }: Props) {
           </div>
           <div>
             <dt>Space</dt>
-            <dd>Brake</dd>
+            <dd>Hydraulic jump</dd>
+          </div>
+          <div>
+            <dt>Shift</dt>
+            <dd>Nitro boost</dd>
           </div>
           <div>
             <dt>Esc</dt>

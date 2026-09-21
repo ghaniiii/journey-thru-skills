@@ -96,7 +96,8 @@ export function Hud() {
           <kbd>W</kbd>
           <kbd>A</kbd>
           <kbd>S</kbd>
-          <kbd>D</kbd> drive · <kbd>Space</kbd> brake · <kbd>E</kbd> interact
+          <kbd>D</kbd> drive · <kbd>Shift</kbd> nitro · <kbd>Space</kbd> jump · <kbd>E</kbd>{" "}
+          interact
         </div>
       )}
     </div>

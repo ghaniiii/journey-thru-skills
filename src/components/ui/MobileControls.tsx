@@ -66,14 +66,38 @@ export function MobileControls() {
         </button>
       </div>
 
-      <button
-        type="button"
-        className="btn btn--primary touch-interact"
-        disabled={!nearby}
-        onClick={() => nearby && openPanel(nearby)}
-      >
-        Interact
-      </button>
+      <div className="touch-actions">
+        <button
+          type="button"
+          className="touch-btn touch-btn--action"
+          aria-label="Nitro boost"
+          {...pressProps(
+            () => setTouch({ nitro: true }),
+            () => setTouch({ nitro: false }),
+          )}
+        >
+          Nitro
+        </button>
+        <button
+          type="button"
+          className="touch-btn touch-btn--action"
+          aria-label="Hydraulic jump"
+          {...pressProps(
+            () => setTouch({ jump: true }),
+            () => setTouch({ jump: false }),
+          )}
+        >
+          Jump
+        </button>
+        <button
+          type="button"
+          className="btn btn--primary touch-interact"
+          disabled={!nearby}
+          onClick={() => nearby && openPanel(nearby)}
+        >
+          Interact
+        </button>
+      </div>
     </div>
   );
 }

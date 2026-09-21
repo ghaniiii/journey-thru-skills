@@ -74,3 +74,36 @@ export function blip(frequency = 660) {
     /* audio unavailable */
   }
 }
+
+function shortEffect(
+  startFrequency: number,
+  endFrequency: number,
+  duration: number,
+  type: OscillatorType,
+) {
+  const ac = context();
+  if (!ac) return;
+  try {
+    void ac.resume();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(startFrequency, ac.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(endFrequency, ac.currentTime + duration);
+    gain.gain.setValueAtTime(0.1, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + duration);
+    osc.connect(gain).connect(ac.destination);
+    osc.start();
+    osc.stop(ac.currentTime + duration);
+  } catch {
+    /* audio unavailable */
+  }
+}
+
+export function playHydraulicJump() {
+  shortEffect(105, 460, 0.22, "square");
+}
+
+export function playNitroIgnition() {
+  shortEffect(90, 230, 0.35, "sawtooth");
+}
