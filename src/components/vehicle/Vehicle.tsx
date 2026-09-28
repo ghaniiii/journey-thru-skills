@@ -118,7 +118,7 @@ export function Vehicle() {
       while (spawnAcc.current >= 1) {
         spawnAcc.current -= 1;
         for (const e of EXHAUSTS) {
-          const p = pool[nextParticle.current];
+          const p = pool[nextParticle.current]!;
           nextParticle.current = (nextParticle.current + 1) % PARTICLES;
           _exhaust.set(e[0], e[1], e[2]).applyMatrix4(body.matrixWorld);
           p.x = _exhaust.x;
@@ -134,7 +134,7 @@ export function Vehicle() {
     const trail = trailRef.current;
     if (trail) {
       for (let i = 0; i < PARTICLES; i++) {
-        const p = pool[i];
+        const p = pool[i]!;
         p.age += dt;
         const life = p.age / PARTICLE_LIFE;
         if (life >= 1) {
