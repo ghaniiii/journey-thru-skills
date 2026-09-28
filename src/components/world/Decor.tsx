@@ -1,6 +1,15 @@
-import { Instance, Instances } from "@react-three/drei";
-import { useMemo } from "react";
+import { useGLTF } from "@react-three/drei";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import * as THREE from "three";
 import { WORLD_BOUND, zones } from "@/data/zones";
+import oak from "@/assets/nature/tree_oak.glb.asset.json";
+import pine from "@/assets/nature/tree_pineRoundA.glb.asset.json";
+import detailed from "@/assets/nature/tree_detailed.glb.asset.json";
+import fat from "@/assets/nature/tree_fat.glb.asset.json";
+import bush from "@/assets/nature/plant_bushLarge.glb.asset.json";
+import rock from "@/assets/nature/rock_largeA.glb.asset.json";
+import flower from "@/assets/nature/flower_redA.glb.asset.json";
+import grass from "@/assets/nature/grass_large.glb.asset.json";
 
 function mulberry32(seed: number) {
   return () => {
@@ -13,93 +22,134 @@ function mulberry32(seed: number) {
 }
 
 interface Placed {
-  position: [number, number, number];
+  x: number;
+  z: number;
   scale: number;
   rotation: number;
 }
 
-function scatter(count: number, seed: number, minRadius: number): Placed[] {
+function scatter(count: number, seed: number, minRadius: number, clearance = 3): Placed[] {
   const rand = mulberry32(seed);
   const out: Placed[] = [];
   let guard = 0;
-  while (out.length < count && guard < count * 12) {
+  while (out.length < count && guard < count * 15) {
     guard++;
     const x = (rand() * 2 - 1) * WORLD_BOUND;
     const z = (rand() * 2 - 1) * WORLD_BOUND;
     if (Math.hypot(x, z) < minRadius) continue;
-    // Keep clear of district footprints and their roads.
-    if (
-      zones.some((zone) => Math.hypot(x - zone.position[0], z - zone.position[1]) < zone.radius + 3)
-    )
+    if (zones.some((zn) => Math.hypot(x - zn.position[0], z - zn.position[1]) < zn.radius + clearance))
       continue;
-    const angle = Math.abs(Math.atan2(x, z));
-    const onSpoke = zones.some((zone) => {
-      const zoneAngle = Math.atan2(zone.position[0], zone.position[1]);
-      return (
-        Math.abs(
-          Math.atan2(Math.sin(angle - Math.abs(zoneAngle)), Math.cos(angle - Math.abs(zoneAngle))),
-        ) < 0.09
-      );
+    // Keep clear of spoke roads (distance from point to each road segment).
+    const onRoad = zones.some((zn) => {
+      const [ax, az] = zn.position;
+      const len2 = ax * ax + az * az;
+      const t = Math.max(0, Math.min(1, (x * ax + z * az) / len2));
+      return Math.hypot(x - ax * t, z - az * t) < 7 + clearance;
     });
-    if (onSpoke) continue;
-    out.push({
-      position: [x, 0, z],
-      scale: 0.7 + rand() * 0.9,
-      rotation: rand() * Math.PI * 2,
-    });
+    if (onRoad) continue;
+    out.push({ x, z, scale: 0.75 + rand() * 0.6, rotation: rand() * Math.PI * 2 });
   }
   return out;
 }
 
-/** Instanced low-poly scenery: conifer-style trees and data pylons. */
+/** Instances every mesh of a small GLB at the given placements. */
+function InstancedModel({
+  url,
+  items,
+  baseScale,
+  shadows,
+}: {
+  url: string;
+  items: Placed[];
+  baseScale: number;
+  shadows: boolean;
+}) {
+  const { scene } = useGLTF(url);
+  const parts = useMemo(() => {
+    scene.updateMatrixWorld(true);
+    const list: { geometry: THREE.BufferGeometry; material: THREE.Material }[] = [];
+    scene.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        const g = (o.geometry as THREE.BufferGeometry).clone();
+        g.applyMatrix4(o.matrixWorld);
+        list.push({ geometry: g, material: o.material as THREE.Material });
+      }
+    });
+    return list;
+  }, [scene]);
+
+  return (
+    <>
+      {parts.map((p, i) => (
+        <Batch key={i} part={p} items={items} baseScale={baseScale} shadows={shadows} />
+      ))}
+    </>
+  );
+}
+
+const _m = new THREE.Matrix4();
+const _q = new THREE.Quaternion();
+const _p = new THREE.Vector3();
+const _s = new THREE.Vector3();
+const _up = new THREE.Vector3(0, 1, 0);
+
+function Batch({
+  part,
+  items,
+  baseScale,
+  shadows,
+}: {
+  part: { geometry: THREE.BufferGeometry; material: THREE.Material };
+  items: Placed[];
+  baseScale: number;
+  shadows: boolean;
+}) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  useLayoutEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    items.forEach((it, i) => {
+      _q.setFromAxisAngle(_up, it.rotation);
+      _p.set(it.x, 0, it.z);
+      _s.setScalar(it.scale * baseScale);
+      mesh.setMatrixAt(i, _m.compose(_p, _q, _s));
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
+  }, [items, baseScale]);
+  useLayoutEffect(() => () => part.geometry.dispose(), [part]);
+
+  return (
+    <instancedMesh
+      ref={ref}
+      args={[part.geometry, part.material, items.length]}
+      castShadow={shadows}
+      receiveShadow
+    />
+  );
+}
+
+/** CC0 Kenney Nature Kit scenery, fully instanced (one draw call per model part). */
 export function Decor() {
-  const trees = useMemo(() => scatter(90, 7, 18), []);
-  const pylons = useMemo(() => scatter(26, 99, 24), []);
+  const sets = useMemo(
+    () => [
+      { url: oak.url, items: scatter(30, 7, 20), scale: 5, shadows: true },
+      { url: pine.url, items: scatter(34, 11, 20), scale: 5.5, shadows: true },
+      { url: detailed.url, items: scatter(22, 23, 20), scale: 5, shadows: true },
+      { url: fat.url, items: scatter(18, 31, 20), scale: 5, shadows: true },
+      { url: bush.url, items: scatter(50, 41, 16, 1), scale: 3.2, shadows: false },
+      { url: rock.url, items: scatter(22, 53, 18, 1.5), scale: 3.5, shadows: true },
+      { url: flower.url, items: scatter(80, 61, 15, 0.5), scale: 3, shadows: false },
+      { url: grass.url, items: scatter(140, 71, 15, 0.3), scale: 3.5, shadows: false },
+    ],
+    [],
+  );
 
   return (
     <group>
-      <Instances limit={120} castShadow>
-        <coneGeometry args={[1.5, 4.5, 7]} />
-        <meshStandardMaterial color="#2f6f5c" roughness={0.9} />
-        {trees.map((t, i) => (
-          <Instance
-            key={i}
-            position={[t.position[0], 2.4 * t.scale, t.position[2]]}
-            scale={t.scale}
-            rotation={[0, t.rotation, 0]}
-          />
-        ))}
-      </Instances>
-
-      <Instances limit={120}>
-        <cylinderGeometry args={[0.35, 0.5, 1.4, 6]} />
-        <meshStandardMaterial color="#3b2f2a" roughness={1} />
-        {trees.map((t, i) => (
-          <Instance
-            key={i}
-            position={[t.position[0], 0.7 * t.scale, t.position[2]]}
-            scale={t.scale}
-          />
-        ))}
-      </Instances>
-
-      <Instances limit={40} castShadow>
-        <boxGeometry args={[0.7, 6, 0.7]} />
-        <meshStandardMaterial
-          color="#22333d"
-          emissive="#2fb6c4"
-          emissiveIntensity={0.25}
-          roughness={0.5}
-        />
-        {pylons.map((p, i) => (
-          <Instance
-            key={i}
-            position={[p.position[0], 3 * p.scale, p.position[2]]}
-            scale={[1, p.scale, 1]}
-            rotation={[0, p.rotation, 0]}
-          />
-        ))}
-      </Instances>
+      {sets.map((s) => (
+        <InstancedModel key={s.url} url={s.url} items={s.items} baseScale={s.scale} shadows={s.shadows} />
+      ))}
     </group>
   );
 }
