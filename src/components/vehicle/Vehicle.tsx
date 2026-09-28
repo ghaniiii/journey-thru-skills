@@ -206,9 +206,9 @@ export function Vehicle() {
       <instancedMesh ref={trailRef} args={[undefined, undefined, PARTICLES]} frustumCulled={false}>
         <sphereGeometry args={[0.5, 8, 6]} />
         <meshBasicMaterial
-          color="#7fd8ff"
+          color="#4fb8ff"
           transparent
-          opacity={0.55}
+          opacity={0.28}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
