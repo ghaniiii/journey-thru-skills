@@ -9,13 +9,14 @@ import { zones } from "@/data/zones";
 export function World({ lowQuality }: { lowQuality: boolean }) {
   return (
     <>
-      <color attach="background" args={["#0b141b"]} />
-      <fog attach="fog" args={["#0b141b", 55, 165]} />
+      <color attach="background" args={["#a9cfe0"]} />
+      <fog attach="fog" args={["#a9cfe0", 70, 190]} />
 
-      <hemisphereLight args={["#9fd8e6", "#1b2a33", 0.55]} />
+      <hemisphereLight args={["#dff1ff", "#5c7a45", 0.9]} />
       <directionalLight
         position={[28, 42, 18]}
-        intensity={1.5}
+        intensity={2.2}
+        color="#fff1d6"
         castShadow={!lowQuality}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
