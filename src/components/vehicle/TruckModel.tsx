@@ -1,30 +1,35 @@
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, useTexture } from "@react-three/drei";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import truckAsset from "@/assets/offroad-4x4.glb.asset.json";
+import colormapAsset from "@/assets/truck-colormap.png.asset.json";
 
+/** CC0 Kenney 4x4 (logo-free). Its colour atlas ships separately, so we apply it here. */
 export function TruckModel() {
   const { scene } = useGLTF(truckAsset.url);
+  const colormap = useTexture(colormapAsset.url);
   const truck = useMemo(() => scene.clone(true), [scene]);
 
   useEffect(() => {
+    colormap.flipY = false;
+    colormap.colorSpace = THREE.SRGBColorSpace;
+    colormap.magFilter = THREE.NearestFilter;
+    colormap.needsUpdate = true;
     truck.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         object.castShadow = true;
         object.receiveShadow = true;
-        const materials = Array.isArray(object.material) ? object.material : [object.material];
-        for (const material of materials) {
-          if (material instanceof THREE.MeshStandardMaterial) {
-            material.roughness = Math.max(material.roughness, 0.32);
-            material.metalness = Math.min(material.metalness, 0.62);
-          }
-        }
+        object.material = new THREE.MeshStandardMaterial({
+          map: colormap,
+          roughness: 0.45,
+          metalness: 0.25,
+        });
       }
     });
-  }, [truck]);
+  }, [truck, colormap]);
 
   return (
-    <group rotation-y={Math.PI} scale={1.62}>
+    <group scale={1.62}>
       <primitive object={truck} />
     </group>
   );
