@@ -1,3 +1,4 @@
+import { cellCenter } from "@/data/cityLayout";
 import type { SectionId } from "./portfolio";
 
 export type ZoneKind = "campus" | "office" | "lab" | "studio" | "tower" | "monument" | "beacon";
@@ -30,7 +31,7 @@ export const zones: Zone[] = [
     label: "EDUCATION",
     hint: "Degrees, CGPA and schooling",
     kind: "campus",
-    position: [0, -46],
+    position: [cellCenter(2), cellCenter(0)],
     size: [9, 11, 7],
     radius: 13,
     color: "#3fb6c9",
@@ -40,7 +41,7 @@ export const zones: Zone[] = [
     label: "EXPERIENCE",
     hint: "Internships and teaching",
     kind: "office",
-    position: [40, -22],
+    position: [cellCenter(3), cellCenter(1)],
     size: [8, 15, 8],
     radius: 13,
     color: "#5b8cf5",
@@ -50,7 +51,7 @@ export const zones: Zone[] = [
     label: "PROJECTS",
     hint: "Things I have shipped",
     kind: "studio",
-    position: [-42, -16],
+    position: [cellCenter(0), cellCenter(1)],
     size: [10, 9, 9],
     radius: 14,
     color: "#f2a33c",
@@ -60,7 +61,7 @@ export const zones: Zone[] = [
     label: "PROJECT LAB",
     hint: "Final Year Project",
     kind: "tower",
-    position: [-44, 26],
+    position: [cellCenter(0), cellCenter(2)],
     size: [8, 20, 8],
     radius: 15,
     color: "#ff7a59",
@@ -70,7 +71,7 @@ export const zones: Zone[] = [
     label: "QUANTUM LAB",
     hint: "Undergraduate research",
     kind: "lab",
-    position: [0, 54],
+    position: [cellCenter(2), cellCenter(3)],
     size: [11, 10, 11],
     radius: 15,
     color: "#8fe3b0",
@@ -80,7 +81,7 @@ export const zones: Zone[] = [
     label: "SKILLS",
     hint: "Languages and stacks",
     kind: "tower",
-    position: [44, 22],
+    position: [cellCenter(3), cellCenter(2)],
     size: [7, 16, 7],
     radius: 13,
     color: "#7fd1f5",
@@ -90,7 +91,7 @@ export const zones: Zone[] = [
     label: "ACHIEVEMENTS",
     hint: "Medals and honours",
     kind: "monument",
-    position: [22, 46],
+    position: [cellCenter(3), cellCenter(3)],
     size: [6, 8, 6],
     radius: 12,
     color: "#ffd166",
@@ -100,7 +101,7 @@ export const zones: Zone[] = [
     label: "CONTACT",
     hint: "Links and CV download",
     kind: "beacon",
-    position: [-24, 48],
+    position: [cellCenter(1), cellCenter(3)],
     size: [7, 9, 7],
     radius: 13,
     color: "#ff9fb2",
@@ -108,6 +109,6 @@ export const zones: Zone[] = [
 ];
 
 /** Hidden developer easter egg tucked into a far corner of the map. */
-export const eggPosition: [number, number] = [-70, -62];
+export const eggPosition: [number, number] = [-74, -70];
 
 export const WORLD_BOUND = 86;
