@@ -28,7 +28,7 @@ export function Ground() {
     <group>
       <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[SIZE, SIZE]} />
-        <meshStandardMaterial map={texture} color="#7fae5c" roughness={0.95} />
+        <meshStandardMaterial map={texture} color="#b8f08a" roughness={0.95} />
       </mesh>
 
       {/* Central plaza */}
