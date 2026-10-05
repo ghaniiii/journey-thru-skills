@@ -38,7 +38,7 @@ function scatter(count: number, seed: number, clearance: number): Placed[] {
   let guard = 0;
   while (out.length < count && guard < count * 20) {
     guard++;
-    const c = CLUSTERS[Math.floor(rand() * CLUSTERS.length)];
+    const c = CLUSTERS[Math.floor(rand() * CLUSTERS.length)]!;
     const x = c.x + (rand() + rand() - 1) * c.spread * 1.4;
     const z = c.z + (rand() + rand() - 1) * c.spread * 1.4;
     if (Math.hypot(x, z) > 150 || !isFree(x, z, clearance)) continue;

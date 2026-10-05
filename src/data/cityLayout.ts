@@ -23,8 +23,8 @@ export function roadWidth(v: number) {
 
 /** Curb-to-curb extent of the block between grid line i and i+1 (sidewalk included). */
 export function cellBounds(i: number) {
-  const a = LINES[i];
-  const b = LINES[i + 1];
+  const a = LINES[i]!;
+  const b = LINES[i + 1]!;
   return { min: a + roadWidth(a) / 2, max: b - roadWidth(b) / 2 };
 }
 
