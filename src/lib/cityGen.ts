@@ -69,7 +69,7 @@ function blockType(i: number, j: number): BlockType {
 
 function build(): CityData {
   const rand = mulberry32(2024);
-  const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
+  const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)]!;
   const d: CityData = {
     solids: [],
     glass: [],
@@ -139,8 +139,8 @@ function roadMarkings(d: CityData, axis: "x" | "z", at: number) {
   const segs: { a: number; b: number; walkA: boolean; walkB: boolean }[] = [];
   for (let k = 0; k < LINES.length - 1; k++) {
     segs.push({
-      a: LINES[k] + half(LINES[k]),
-      b: LINES[k + 1] - half(LINES[k + 1]),
+      a: LINES[k]! + half(LINES[k]!),
+      b: LINES[k + 1]! - half(LINES[k + 1]!),
       walkA: true,
       walkB: true,
     });

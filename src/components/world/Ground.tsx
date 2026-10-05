@@ -23,7 +23,7 @@ export function Ground() {
     for (let i = 0; i < 34; i++) {
       const a = (i / 34) * Math.PI * 2 + rand() * 0.15;
       const d = 120 + rand() * 70;
-      out.push({ x: Math.cos(a) * d, z: Math.sin(a) * d, r: 22 + rand() * 26, h: 8 + rand() * 14, c: greens[i % 4] });
+      out.push({ x: Math.cos(a) * d, z: Math.sin(a) * d, r: 22 + rand() * 26, h: 8 + rand() * 14, c: greens[i % 4]! });
     }
     for (let i = 0; i < 18; i++) {
       const a = (i / 18) * Math.PI * 2 + rand() * 0.3;
