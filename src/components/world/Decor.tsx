@@ -1,7 +1,8 @@
 import { useGLTF } from "@react-three/drei";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { WORLD_BOUND, zones } from "@/data/zones";
+import { cellCenter } from "@/data/cityLayout";
+import { isFree, mulberry32 } from "@/lib/cityGen";
 import oak from "@/assets/nature/tree_oak.glb.asset.json";
 import pine from "@/assets/nature/tree_pineRoundA.glb.asset.json";
 import detailed from "@/assets/nature/tree_detailed.glb.asset.json";
@@ -11,16 +12,6 @@ import rock from "@/assets/nature/rock_largeA.glb.asset.json";
 import flower from "@/assets/nature/flower_redA.glb.asset.json";
 import grass from "@/assets/nature/grass_large.glb.asset.json";
 
-function mulberry32(seed: number) {
-  return () => {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 interface Placed {
   x: number;
   z: number;
@@ -28,25 +19,29 @@ interface Placed {
   rotation: number;
 }
 
-function scatter(count: number, seed: number, minRadius: number, clearance = 3): Placed[] {
+/** Natural cluster centres: the park, residential gardens, and countryside groves. */
+const CLUSTERS: { x: number; z: number; spread: number }[] = (() => {
+  const rand = mulberry32(5);
+  const park = { x: cellCenter(0), z: cellCenter(0), spread: 7 };
+  const list = [park, park, park, { x: cellCenter(1), z: cellCenter(0), spread: 6 }, { x: cellCenter(0), z: cellCenter(3), spread: 7 }];
+  for (let i = 0; i < 28; i++) {
+    const a = rand() * Math.PI * 2;
+    const d = 74 + rand() * 50;
+    list.push({ x: Math.cos(a) * d, z: Math.sin(a) * d, spread: 10 + rand() * 8 });
+  }
+  return list;
+})();
+
+function scatter(count: number, seed: number, clearance: number): Placed[] {
   const rand = mulberry32(seed);
   const out: Placed[] = [];
   let guard = 0;
-  while (out.length < count && guard < count * 15) {
+  while (out.length < count && guard < count * 20) {
     guard++;
-    const x = (rand() * 2 - 1) * WORLD_BOUND;
-    const z = (rand() * 2 - 1) * WORLD_BOUND;
-    if (Math.hypot(x, z) < minRadius) continue;
-    if (zones.some((zn) => Math.hypot(x - zn.position[0], z - zn.position[1]) < zn.radius + clearance))
-      continue;
-    // Keep clear of spoke roads (distance from point to each road segment).
-    const onRoad = zones.some((zn) => {
-      const [ax, az] = zn.position;
-      const len2 = ax * ax + az * az;
-      const t = Math.max(0, Math.min(1, (x * ax + z * az) / len2));
-      return Math.hypot(x - ax * t, z - az * t) < 7 + clearance;
-    });
-    if (onRoad) continue;
+    const c = CLUSTERS[Math.floor(rand() * CLUSTERS.length)];
+    const x = c.x + (rand() + rand() - 1) * c.spread * 1.4;
+    const z = c.z + (rand() + rand() - 1) * c.spread * 1.4;
+    if (Math.hypot(x, z) > 150 || !isFree(x, z, clearance)) continue;
     out.push({ x, z, scale: 0.75 + rand() * 0.6, rotation: rand() * Math.PI * 2 });
   }
   return out;
@@ -133,14 +128,14 @@ function Batch({
 export function Decor() {
   const sets = useMemo(
     () => [
-      { url: oak.url, items: scatter(30, 7, 20), scale: 5, shadows: true },
-      { url: pine.url, items: scatter(34, 11, 20), scale: 5.5, shadows: true },
-      { url: detailed.url, items: scatter(22, 23, 20), scale: 5, shadows: true },
-      { url: fat.url, items: scatter(18, 31, 20), scale: 5, shadows: true },
-      { url: bush.url, items: scatter(50, 41, 16, 1), scale: 3.2, shadows: false },
-      { url: rock.url, items: scatter(22, 53, 18, 1.5), scale: 3.5, shadows: true },
-      { url: flower.url, items: scatter(80, 61, 15, 0.5), scale: 3, shadows: false },
-      { url: grass.url, items: scatter(140, 71, 15, 0.3), scale: 3.5, shadows: false },
+      { url: oak.url, items: scatter(60, 7, 1.5), scale: 5, shadows: true },
+      { url: pine.url, items: scatter(80, 11, 1.5), scale: 5.5, shadows: true },
+      { url: detailed.url, items: scatter(40, 23, 1.5), scale: 5, shadows: true },
+      { url: fat.url, items: scatter(30, 31, 1.5), scale: 5, shadows: true },
+      { url: bush.url, items: scatter(70, 41, 0.6), scale: 3.2, shadows: false },
+      { url: rock.url, items: scatter(25, 53, 1), scale: 3.5, shadows: true },
+      { url: flower.url, items: scatter(90, 61, 0.3), scale: 3, shadows: false },
+      { url: grass.url, items: scatter(160, 71, 0.2), scale: 3.5, shadows: false },
     ],
     [],
   );

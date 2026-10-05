@@ -40,9 +40,9 @@ const GRAVITY = -22;
 
 export function createVehicleState(): VehicleState {
   return {
-    px: 0,
+    px: -3.5,
     py: 0,
-    pz: 6,
+    pz: 24,
     vx: 0,
     vy: 0,
     vz: 0,

@@ -1,5 +1,6 @@
 import { Environment, Lightformer } from "@react-three/drei";
 import { Decor } from "@/components/world/Decor";
+import { City } from "@/components/world/City";
 import { Ground } from "@/components/world/Ground";
 import { Landmark } from "@/components/world/Landmark";
 import { Plaza } from "@/components/world/Plaza";
@@ -9,8 +10,8 @@ import { zones } from "@/data/zones";
 export function World({ lowQuality }: { lowQuality: boolean }) {
   return (
     <>
-      <color attach="background" args={["#a9cfe0"]} />
-      <fog attach="fog" args={["#a9cfe0", 70, 190]} />
+      <color attach="background" args={["#b9d6e3"]} />
+      <fog attach="fog" args={["#b9d6e3", 70, 260]} />
 
       <hemisphereLight args={["#dff1ff", "#5c7a45", 0.9]} />
       <directionalLight
@@ -45,6 +46,7 @@ export function World({ lowQuality }: { lowQuality: boolean }) {
       </Environment>
 
       <Ground />
+      <City />
       <Plaza />
       {!lowQuality && <Decor />}
       {zones.map((zone) => (
