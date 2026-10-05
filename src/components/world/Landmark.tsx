@@ -32,7 +32,7 @@ export function Landmark({ zone }: Props) {
     <group position={[x, 0, z]}>
       {/* plinth */}
       <mesh position={[0, 0.15, 0]} receiveShadow>
-        <boxGeometry args={[w + 4, 0.3, d + 4]} />
+        <boxGeometry args={[w + 2, 0.3, d + 2]} />
         <meshStandardMaterial color="#2b3a45" roughness={0.9} />
       </mesh>
 

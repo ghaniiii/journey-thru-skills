@@ -6,6 +6,7 @@ import { useGameStore } from "@/store/useGameStore";
 import { createVehicleState, updateVehicle, type Obstacle } from "@/lib/vehiclePhysics";
 import { playHydraulicJump, playNitroIgnition, updateEngine } from "@/lib/audio";
 import { WORLD_BOUND, eggPosition, zones } from "@/data/zones";
+import { city } from "@/lib/cityGen";
 import type { SectionId } from "@/data/portfolio";
 import { TruckModel } from "./TruckModel";
 
@@ -51,13 +52,15 @@ export function Vehicle() {
   const spawnAcc = useRef(0);
 
   const obstacles = useMemo<Obstacle[]>(
-    () =>
-      zones.map((z) => ({
+    () => [
+      ...zones.map((z) => ({
         x: z.position[0],
         z: z.position[1],
         hx: z.size[0] / 2 + 0.6,
         hz: z.size[2] / 2 + 0.6,
       })),
+      ...city.obstacles,
+    ],
     [],
   );
 
