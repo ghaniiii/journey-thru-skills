@@ -309,13 +309,41 @@ const ROOF_C = ["#8c4a3a", "#5a5f66", "#7a5236", "#a0533e"];
 type Rand = () => number;
 type Pick = <T>(arr: T[]) => T;
 
-function tower(d: CityData, x: number, z: number, w: number, dd: number, h: number, col: string, glass: string) {
+function tower(d: CityData, x: number, z: number, w: number, dd: number, h: number, col: string, glass: string, rand: Rand) {
   const B = BLOCK_TOP;
-  d.solids.push({ p: [x, B + h / 2, z], s: [w, h, dd], c: col });
-  d.glass.push({ p: [x, B + 1.1, z], s: [w + 0.12, 2.2, dd + 0.12], c: glass });
-  for (let y = 3.6; y < h - 1; y += 3.1) d.glass.push({ p: [x, B + y, z], s: [w + 0.1, 1.4, dd + 0.1], c: glass });
-  d.solids.push({ p: [x, B + h + 0.25, z], s: [w + 0.3, 0.5, dd + 0.3], c: "#6f757b" });
-  d.solids.push({ p: [x + w * 0.15, B + h + 0.95, z - dd * 0.1], s: [w * 0.35, 0.9, dd * 0.3], c: "#8a9096" });
+  const style = Math.floor(rand() * 3);
+  // Podium + shaft, with an optional setback upper tier.
+  const lower = style === 0 ? h * 0.62 : h;
+  d.solids.push({ p: [x, B + lower / 2, z], s: [w, lower, dd], c: col });
+  d.glass.push({ p: [x, B + 1.2, z], s: [w + 0.12, 2.4, dd + 0.12], c: "#2f4756" });
+  const band = style === 1 ? 2.4 : 3.1;
+  const glassH = style === 2 ? band * 0.8 : 1.3;
+  const draw = (y0: number, y1: number, ww: number, wd: number) => {
+    for (let y = y0; y < y1 - 1; y += band) d.glass.push({ p: [x, B + y, z], s: [ww + 0.1, glassH, wd + 0.1], c: glass });
+  };
+  draw(3.6, lower, w, dd);
+  let top = lower;
+  if (style === 0) {
+    const uw = w * 0.7;
+    const ud = dd * 0.7;
+    d.solids.push({ p: [x, B + lower + (h - lower) / 2, z], s: [uw, h - lower, ud], c: col });
+    d.solids.push({ p: [x, B + lower + 0.15, z], s: [w + 0.2, 0.3, dd + 0.2], c: "#7d8389" });
+    draw(lower + 1.2, h, uw, ud);
+    top = h;
+  }
+  if (style === 2) {
+    // vertical fins for a different facade rhythm
+    for (let k = -2; k <= 2; k++) d.solids.push({ p: [x + (k * w) / 5, B + top / 2, z + dd / 2 + 0.08], s: [0.18, top, 0.18], c: "#e9e5dc" });
+  }
+  d.solids.push({ p: [x, B + top + 0.25, z], s: [w * (style === 0 ? 0.72 : 1) + 0.3, 0.5, dd * (style === 0 ? 0.72 : 1) + 0.3], c: "#6f757b" });
+  d.solids.push({ p: [x + w * 0.12, B + top + 0.95, z - dd * 0.1], s: [w * 0.3, 0.9, dd * 0.28], c: "#8a9096" });
+  if (h > 26) {
+    d.solids.push({ p: [x, B + top + 3, z], s: [0.15, 4, 0.15], c: "#9aa0a6" });
+    d.glow.push({ p: [x, B + top + 5.1, z], s: [0.25, 0.25, 0.25], c: "#ff5a4d" });
+  }
+  // Entrance canopy
+  d.solids.push({ p: [x, B + 2.7, z + dd / 2 + 0.8], s: [w * 0.4, 0.15, 1.6], c: "#3c4148" });
+  d.glow.push({ p: [x, B + 2.6, z + dd / 2 + 0.8], s: [w * 0.3, 0.04, 1.2], c: "#fff0c8" });
   d.obstacles.push({ x, z, hx: w / 2 + 0.3, hz: dd / 2 + 0.3 });
 }
 
@@ -336,19 +364,60 @@ function shop(d: CityData, x: number, z: number, s: number, h: number, fx: numbe
   d.obstacles.push({ x, z, hx: s / 2 + 0.3, hz: s / 2 + 0.3 });
 }
 
-function house(d: CityData, x: number, z: number, w: number, dd: number, fx: number, fz: number, pick: Pick) {
+function parkedCarBay(d: CityData, x: number, z: number, rand: Rand) {
   const B = BLOCK_TOP;
-  const h = 3.2;
-  d.solids.push({ p: [x, B + h / 2, z], s: [w, h, dd], c: pick(HOUSE_C) });
-  d.roofs.push({ p: [x, B + h + 1, z], s: [w * 1.15, 2, dd * 1.15], c: pick(ROOF_C), r: Math.PI / 4 });
-  d.glass.push({ p: [x, B + 1.9, z], s: [w + 0.06, 0.8, dd * 0.6], c: "#5d7a8a" });
+  const col = ["#b8352b", "#2d5e8c", "#e9e6df", "#3b3f45"][Math.floor(rand() * 4)]!;
+  d.solids.push({ p: [x, B + 0.45, z], s: [0.95, 0.55, 2.1], c: col });
+  d.glass.push({ p: [x, B + 0.9, z], s: [0.85, 0.4, 1.2], c: "#2e3f4a" });
+  d.obstacles.push({ x, z, hx: 0.5, hz: 1.1 });
+}
+
+function parkedCar(d: CityData, x: number, z: number, alongX: boolean, rand: Rand) {
+  const B = BLOCK_TOP;
+  const col = ["#b8352b", "#2d5e8c", "#e9e6df", "#3b3f45", "#d6a23a", "#4d7a52"][Math.floor(rand() * 6)]!;
+  const r = alongX ? 0 : Math.PI / 2;
+  d.solids.push({ p: [x, B + 0.55, z], s: [3.6, 0.7, 1.7], c: col, r });
+  d.glass.push({ p: [x, B + 1.15, z], s: [2, 0.55, 1.5], c: "#2e3f4a", r });
+  for (const a of [-1.2, 1.2])
+    for (const b of [-0.8, 0.8]) {
+      const wx = alongX ? x + a : x + b;
+      const wz = alongX ? z + b : z + a;
+      d.solids.push({ p: [wx, B + 0.3, wz], s: [0.7, 0.6, 0.3], c: "#1d1f22", r });
+    }
+  d.obstacles.push({ x, z, hx: alongX ? 1.8 : 0.85, hz: alongX ? 0.85 : 1.8 });
+}
+
+function house(d: CityData, x: number, z: number, w: number, dd: number, fx: number, fz: number, pick: Pick, rand: Rand) {
+  const B = BLOCK_TOP;
+  const twoStorey = rand() > 0.5;
+  const h = twoStorey ? 5.6 : 3.2;
+  const col = pick(HOUSE_C);
+  d.solids.push({ p: [x, B + h / 2, z], s: [w, h, dd], c: col });
+  if (rand() > 0.35) {
+    d.roofs.push({ p: [x, B + h + 1, z], s: [w * 1.15, 2, dd * 1.15], c: pick(ROOF_C), r: Math.PI / 4 });
+    d.solids.push({ p: [x + w * 0.25, B + h + 1.6, z], s: [0.5, 1.4, 0.5], c: "#8a6a58" });
+  } else {
+    d.solids.push({ p: [x, B + h + 0.2, z], s: [w + 0.2, 0.4, dd + 0.2], c: "#8f8a80" });
+  }
+  // Side wing for an L-shaped footprint on some houses.
+  if (rand() > 0.6) d.solids.push({ p: [x - w * 0.45, B + 1.5, z], s: [w * 0.4, 3, dd * 0.7], c: col });
+  for (let y = 1.9; y < h; y += 2.4) {
+    for (const ox of [-w * 0.27, w * 0.27])
+      d.glass.push({ p: [x + ox, B + y, z + fz * (dd / 2 + 0.03)], s: [w * 0.22, 0.9, 0.06], c: "#5d7a8a" });
+  }
+  if (twoStorey) {
+    d.solids.push({ p: [x, B + 3.0, z + fz * (dd / 2 + 0.5)], s: [w * 0.5, 0.12, 1], c: "#e8e2d6" });
+    d.solids.push({ p: [x, B + 3.4, z + fz * (dd / 2 + 0.95)], s: [w * 0.5, 0.7, 0.06], c: "#4a4d52" });
+  }
   d.solids.push({
     p: [x + fx * (w / 2 + 0.03), B + 1, z + fz * (dd / 2 + 0.03)],
     s: fx ? [0.08, 2, 0.9] : [0.9, 2, 0.08],
     c: "#6b4a33",
   });
-  d.solids.push({ p: [x + w * 0.25, B + h + 1.6, z], s: [0.5, 1.4, 0.5], c: "#8a6a58" });
+  d.solids.push({ p: [x, B + 0.08, z + fz * (dd / 2 + 0.6)], s: [1.1, 0.16, 1], c: "#cfc8ba" });
   d.obstacles.push({ x, z, hx: w / 2 + 0.3, hz: dd / 2 + 0.3 });
+  // Car on the driveway beside the house.
+  if (rand() > 0.45) parkedCar(d, x + w / 2 + 1.2, z + fz * (dd / 2 + 1.2), false, rand);
 }
 
 function downtown(d: CityData, ix: Range, iz: Range, rand: Rand, pick: Pick) {
@@ -361,7 +430,7 @@ function downtown(d: CityData, ix: Range, iz: Range, rand: Rand, pick: Pick) {
       const z = iz.min + fd / 2 + sz * (fd + gap);
       const near = 1 - Math.min(Math.hypot(x, z) / 40, 1);
       const h = 10 + near * 16 + rand() * 8;
-      tower(d, x, z, fw * (0.82 + rand() * 0.12), fd * (0.82 + rand() * 0.12), h, pick(TOWER_C), pick(GLASS_C));
+      tower(d, x, z, fw * (0.82 + rand() * 0.12), fd * (0.82 + rand() * 0.12), h, pick(TOWER_C), pick(GLASS_C), rand);
     }
   }
 }
@@ -378,6 +447,7 @@ function commercial(d: CityData, ix: Range, iz: Range, rand: Rand, pick: Pick) {
         d.flat.push({ p: [x, BLOCK_TOP + 0.02, z], s: [cw + 0.6, 0.02, cd + 0.6], c: "#4a4d52" });
         for (let k = -2; k <= 2; k++)
           d.paint.push({ p: [x + k * 1.2, BLOCK_TOP + 0.04, z], s: [0.1, 0.02, cd * 0.7], c: WHITE });
+        for (let k = -2; k < 2; k++) if (rand() > 0.4) parkedCarBay(d, x + k * 1.2 + 0.6, z, rand);
         continue;
       }
       const fx = a === 0 ? -1 : a === 2 ? 1 : 0;
@@ -397,7 +467,7 @@ function residential(d: CityData, ix: Range, iz: Range, rand: Rand, pick: Pick) 
       const x = ix.min + cw * (a + 0.5) + (rand() - 0.5) * 0.6;
       const z = iz.min + cd * (b + 0.5) + (rand() - 0.5) * 0.6;
       const fz = b < n / 2 ? -1 : 1;
-      house(d, x, z, cw * 0.62, cd * 0.55, 0, fz, pick);
+      house(d, x, z, cw * (0.5 + rand() * 0.15), cd * (0.45 + rand() * 0.12), 0, fz, pick, rand);
     }
   }
 }
