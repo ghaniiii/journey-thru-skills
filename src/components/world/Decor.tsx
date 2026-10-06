@@ -2,7 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { cellCenter } from "@/data/cityLayout";
-import { isFree, mulberry32 } from "@/lib/cityGen";
+import { city, isFree, mulberry32 } from "@/lib/cityGen";
 import oak from "@/assets/nature/tree_oak.glb.asset.json";
 import pine from "@/assets/nature/tree_pineRoundA.glb.asset.json";
 import detailed from "@/assets/nature/tree_detailed.glb.asset.json";
@@ -17,6 +17,7 @@ interface Placed {
   z: number;
   scale: number;
   rotation: number;
+  y?: number;
 }
 
 /** Natural cluster centres: the park, residential gardens, and countryside groves. */
@@ -105,7 +106,7 @@ function Batch({
     if (!mesh) return;
     items.forEach((it, i) => {
       _q.setFromAxisAngle(_up, it.rotation);
-      _p.set(it.x, 0, it.z);
+      _p.set(it.x, it.y ?? 0, it.z);
       _s.setScalar(it.scale * baseScale);
       mesh.setMatrixAt(i, _m.compose(_p, _q, _s));
     });
@@ -140,8 +141,24 @@ export function Decor() {
     [],
   );
 
+  const street = useMemo(() => {
+    const urls = { oak: oak.url, detailed: detailed.url, fat: fat.url, bush: bush.url } as const;
+    const base = { oak: 5, detailed: 5, fat: 5, bush: 3.2 } as const;
+    return (Object.keys(urls) as (keyof typeof urls)[]).map((k) => ({
+      key: `street-${k}`,
+      url: urls[k],
+      scale: base[k],
+      items: city.streetTrees
+        .filter((t) => t.kind === k)
+        .map((t) => ({ x: t.x, z: t.z, y: t.y, scale: t.scale, rotation: t.rot })),
+    }));
+  }, []);
+
   return (
     <group>
+      {street.map((s) => (
+        <InstancedModel key={s.key} url={s.url} items={s.items} baseScale={s.scale} shadows />
+      ))}
       {sets.map((s) => (
         <InstancedModel key={s.url} url={s.url} items={s.items} baseScale={s.scale} shadows={s.shadows} />
       ))}
