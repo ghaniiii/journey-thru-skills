@@ -120,7 +120,7 @@ function build(): CityData {
   streetLights(d);
   trafficSignals(d);
   busStops(d);
-  d.obstacles.push({ x: 0, z: 0, hx: ISLAND_R - 1.2, hz: ISLAND_R - 1.2 });
+  d.obstacles.push({ x: 0, z: 0, hx: ISLAND_R, hz: ISLAND_R, r: ISLAND_R });
   return d;
 }
 

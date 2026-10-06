@@ -24,41 +24,17 @@ export interface Obstacle {
   z: number;
   hx: number;
   hz: number;
+  /** When set, the obstacle is a circle of this radius instead of a box. */
+  r?: number;
 }
 
-const ACCEL = 26;
-const REVERSE = 14;
-const DRAG = 1.15;
-const ROLL_RESIST = 0.9;
-const TURN = 2.3;
-const GRIP = 7.5;
-const MAX_SPEED = 34;
-const NITRO_ACCEL = 18;
-const NITRO_MAX_SPEED = 43;
-const JUMP_VELOCITY = 8.5;
-const GRAVITY = -22;
-
-export function createVehicleState(): VehicleState {
-  return {
-    px: -3.5,
-    py: 0,
-    pz: 24,
-    vx: 0,
-    vy: 0,
-    vz: 0,
-    yaw: Math.PI,
-    slip: 0,
-    speed: 0,
-    grounded: true,
-    jumpHeld: false,
-  };
-}
-
-/** Axis-aligned overlap test for the car's footprint against static boxes. */
+/** Overlap test for the car's footprint against static boxes and circles. */
 function hits(x: number, z: number, obstacles: Obstacle[], halfW = 1.3, halfL = 2.2) {
   const r = Math.max(halfW, halfL);
   for (const o of obstacles) {
-    if (Math.abs(x - o.x) < o.hx + r && Math.abs(z - o.z) < o.hz + r) return true;
+    if (o.r !== undefined) {
+      if (Math.hypot(x - o.x, z - o.z) < o.r + r * 0.7) return true;
+    } else if (Math.abs(x - o.x) < o.hx + r && Math.abs(z - o.z) < o.hz + r) return true;
   }
   return false;
 }
