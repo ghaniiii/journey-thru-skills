@@ -22,6 +22,15 @@ export interface Part {
   r?: number;
 }
 
+export interface StreetTree {
+  x: number;
+  z: number;
+  y: number;
+  kind: "oak" | "detailed" | "fat" | "bush";
+  scale: number;
+  rot: number;
+}
+
 export interface CityData {
   solids: Part[];
   glass: Part[];
@@ -31,6 +40,7 @@ export interface CityData {
   paint: Part[];
   obstacles: Obstacle[];
   ponds: { x: number; z: number; r: number }[];
+  streetTrees: StreetTree[];
 }
 
 export function mulberry32(seed: number) {
@@ -79,6 +89,7 @@ function build(): CityData {
     paint: [],
     obstacles: [],
     ponds: [],
+    streetTrees: [],
   };
   const B = BLOCK_TOP;
 
@@ -102,6 +113,25 @@ function build(): CityData {
       const w = bx.max - bx.min;
       const dd = bz.max - bz.min;
       d.solids.push({ p: [cx, B / 2, cz], s: [w, B, dd], c: SIDEWALK_C });
+      // Curb edge and furniture/landscaping strip; the inner band stays the walking zone.
+      const FS = "#a39d90";
+      const CURB = "#e2ddd2";
+      for (const [px, pz, sx, sz] of [
+        [cx, bz.min + 0.75, w, 0.9],
+        [cx, bz.max - 0.75, w, 0.9],
+        [bx.min + 0.75, cz, 0.9, dd],
+        [bx.max - 0.75, cz, 0.9, dd],
+      ] as const) d.flat.push({ p: [px, B + 0.012, pz], s: [sx, 0.02, sz], c: FS });
+      for (const [px, pz, sx, sz] of [
+        [cx, bz.min + 0.1, w, 0.2],
+        [cx, bz.max - 0.1, w, 0.2],
+        [bx.min + 0.1, cz, 0.2, dd],
+        [bx.max - 0.1, cz, 0.2, dd],
+      ] as const) d.paint.push({ p: [px, B + 0.014, pz], s: [sx, 0.02, sz], c: CURB });
+      // Paving joints across the walking zone.
+      for (let t = bx.min + 3; t < bx.max - 2; t += 3)
+        for (const zz of [bz.min + 1.95, bz.max - 1.95])
+          d.paint.push({ p: [t, B + 0.013, zz], s: [0.05, 0.02, 1.1], c: "#b3ad9f" });
       d.flat.push({
         p: [cx, B + 0.01, cz],
         s: [w - SIDEWALK * 2, 0.02, dd - SIDEWALK * 2],
@@ -120,8 +150,86 @@ function build(): CityData {
   streetLights(d);
   trafficSignals(d);
   busStops(d);
+  roundabout(d, rand);
   d.obstacles.push({ x: 0, z: 0, hx: ISLAND_R, hz: ISLAND_R, r: ISLAND_R });
+  streetscape(d, rand);
   return d;
+}
+
+const TREE_KINDS: StreetTree["kind"][] = ["oak", "detailed", "fat", "oak", "detailed"];
+
+/** Street trees, benches, bins and planters in the furniture strip of every road. */
+function streetscape(d: CityData, rand: Rand) {
+  const B = BLOCK_TOP;
+  for (const v of LINES) {
+    const off = roadWidth(v) / 2 + 0.75;
+    const cr = crossings(v);
+    let slot = 0;
+    for (let t = -GRID_EXTENT + 4; t < GRID_EXTENT - 2; t += 8) {
+      const tt = t + (rand() - 0.5) * 1.6;
+      if (cr.some(({ c, h }) => Math.abs(tt - c) < h + 1.5)) continue;
+      for (const side of [-1, 1]) {
+        if (Math.abs(v) === 60 && side * Math.sign(v) > 0) continue;
+        for (const axis of ["z", "x"] as const) {
+          const x = axis === "z" ? v + side * off : tt;
+          const z = axis === "z" ? tt : v + side * off;
+          if (!isFree(x, z, 0.2)) continue;
+          slot++;
+          if (slot % 4 === 0) {
+            // bench + bin facing the walking zone
+            const r = axis === "z" ? Math.PI / 2 : 0;
+            d.solids.push({ p: [x, B + 0.45, z], s: [1.5, 0.1, 0.45], c: "#7a5236", r });
+            d.solids.push({ p: [x, B + 0.22, z], s: [1.3, 0.4, 0.12], c: "#3a3d42", r });
+            const bo = 1.3;
+            d.solids.push({
+              p: [x + (axis === "x" ? bo : 0), B + 0.4, z + (axis === "z" ? bo : 0)],
+              s: [0.45, 0.8, 0.45],
+              c: "#2f5d50",
+            });
+          } else if (slot % 7 === 0) {
+            d.solids.push({ p: [x, B + 0.3, z], s: [1.1, 0.6, 1.1], c: "#9c8f7c" });
+            d.streetTrees.push({ x, z, y: B + 0.6, kind: "bush", scale: 0.7 + rand() * 0.3, rot: rand() * 6.28 });
+          } else if (rand() > 0.12) {
+            d.solids.push({ p: [x, B + 0.02, z], s: [1.1, 0.04, 1.1], c: "#5b4a3a" });
+            d.streetTrees.push({
+              x: x + (rand() - 0.5) * 0.2,
+              z: z + (rand() - 0.5) * 0.2,
+              y: B,
+              kind: TREE_KINDS[Math.floor(rand() * TREE_KINDS.length)]!,
+              scale: 0.55 + rand() * 0.35,
+              rot: rand() * 6.28,
+            });
+            d.obstacles.push({ x, z, hx: 0.3, hz: 0.3 });
+          }
+        }
+      }
+    }
+  }
+}
+
+/** Landscaped central island: hedge ring, flower beds, small trees and a monument. */
+function roundabout(d: CityData, rand: Rand) {
+  const top = 0.31;
+  for (let k = 0; k < 20; k++) {
+    const a = (k / 20) * Math.PI * 2;
+    const rr = ISLAND_R - 0.55;
+    d.solids.push({
+      p: [Math.cos(a) * rr, top + 0.3, Math.sin(a) * rr],
+      s: [1.75, 0.6, 0.6],
+      c: k % 2 ? "#4f7d3a" : "#56873f",
+      r: -a + Math.PI / 2,
+    });
+  }
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2 + 0.3;
+    const rr = ISLAND_R - 2.2;
+    d.flat.push({ p: [Math.cos(a) * rr, top + 0.02, Math.sin(a) * rr], s: [1.2, 0.02, 1.2], c: k % 2 ? "#e0607a" : "#f1c24b", r: a });
+    if (k % 2 === 0)
+      d.streetTrees.push({ x: Math.cos(a + 0.5) * rr, z: Math.sin(a + 0.5) * rr, y: top, kind: "detailed", scale: 0.45 + rand() * 0.15, rot: a });
+  }
+  d.solids.push({ p: [0, top + 0.4, 0], s: [2, 0.8, 2], c: "#b9b2a3", r: Math.PI / 4 });
+  d.solids.push({ p: [0, top + 2.2, 0], s: [0.6, 3, 0.6], c: "#d9d2c2", r: Math.PI / 4 });
+  d.glow.push({ p: [0, top + 3.9, 0], s: [0.5, 0.4, 0.5], c: "#ffd27a", r: Math.PI / 4 });
 }
 
 type Range = { min: number; max: number };
