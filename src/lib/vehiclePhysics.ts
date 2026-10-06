@@ -28,6 +28,34 @@ export interface Obstacle {
   r?: number;
 }
 
+const ACCEL = 26;
+const REVERSE = 14;
+const DRAG = 1.15;
+const ROLL_RESIST = 0.9;
+const TURN = 2.3;
+const GRIP = 7.5;
+const MAX_SPEED = 34;
+const NITRO_ACCEL = 18;
+const NITRO_MAX_SPEED = 43;
+const JUMP_VELOCITY = 8.5;
+const GRAVITY = -22;
+
+export function createVehicleState(): VehicleState {
+  return {
+    px: -3.5,
+    py: 0,
+    pz: 24,
+    vx: 0,
+    vy: 0,
+    vz: 0,
+    yaw: Math.PI,
+    slip: 0,
+    speed: 0,
+    grounded: true,
+    jumpHeld: false,
+  };
+}
+
 /** Overlap test for the car's footprint against static boxes and circles. */
 function hits(x: number, z: number, obstacles: Obstacle[], halfW = 1.3, halfL = 2.2) {
   const r = Math.max(halfW, halfL);
