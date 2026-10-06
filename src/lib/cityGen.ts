@@ -173,7 +173,7 @@ function streetscape(d: CityData, rand: Rand) {
         for (const axis of ["z", "x"] as const) {
           const x = axis === "z" ? v + side * off : tt;
           const z = axis === "z" ? tt : v + side * off;
-          if (!isFree(x, z, 0.2)) continue;
+          if (!freeAt(d, x, z)) continue;
           slot++;
           if (slot % 4 === 0) {
             // bench + bin facing the walking zone
@@ -205,6 +205,14 @@ function streetscape(d: CityData, rand: Rand) {
       }
     }
   }
+}
+
+function freeAt(d: CityData, x: number, z: number) {
+  if (Math.hypot(x, z) < ROUNDABOUT_R + 3) return false;
+  for (const o of d.obstacles) if (Math.abs(x - o.x) < o.hx + 0.8 && Math.abs(z - o.z) < o.hz + 0.8) return false;
+  for (const zn of zones)
+    if (Math.abs(x - zn.position[0]) < zn.size[0] / 2 + 2.5 && Math.abs(z - zn.position[1]) < zn.size[2] / 2 + 2.5) return false;
+  return true;
 }
 
 /** Landscaped central island: hedge ring, flower beds, small trees and a monument. */
@@ -451,9 +459,39 @@ function trafficSignals(d: CityData) {
           const px = x + sx * ox;
           const pz = z + sz * oz;
           if (Math.abs(px) > GRID_EXTENT || Math.abs(pz) > GRID_EXTENT) continue;
-          d.solids.push({ p: [px, 2.2, pz], s: [0.18, 4.4, 0.18], c: "#2c3036" });
-          d.solids.push({ p: [px, 4.6, pz], s: [0.45, 1.3, 0.45], c: "#22262b" });
-          d.glow.push({ p: [px, k % 2 ? 4.95 : 4.25, pz], s: [0.5, 0.28, 0.5], c: k % 2 ? "#ff5a4d" : "#46e08a" });
+          const POLE = "#2c3036";
+          const HOUSING = "#1f2328";
+          d.solids.push({ p: [px, 2.9, pz], s: [0.2, 5.8, 0.2], c: POLE });
+          // Mast arm reaching over the approaching lanes (alternating axis per corner).
+          const alongX = k % 2 === 0;
+          const len = (alongX ? ox : oz) * 0.85;
+          const ax = alongX ? -sx : 0;
+          const az = alongX ? 0 : -sz;
+          d.solids.push({ p: [px + (ax * len) / 2, 5.6, pz + (az * len) / 2], s: alongX ? [len, 0.14, 0.14] : [0.14, 0.14, len], c: POLE });
+          const hx = px + ax * len * 0.8;
+          const hz = pz + az * len * 0.8;
+          // Facing direction: traffic approaching along the perpendicular road.
+          const fx = alongX ? 0 : 0;
+          const fz = alongX ? sz : 0;
+          const fx2 = alongX ? 0 : sx;
+          const dx = fx + fx2;
+          const dz = fz;
+          d.solids.push({ p: [hx, 4.85, hz], s: [0.5, 1.45, 0.5], c: HOUSING });
+          d.solids.push({ p: [hx, 4.85, hz], s: [0.62, 1.55, 0.06].map((v, n) => (n === 0 && dx ? 0.06 : n === 2 && dx ? 0.62 : v)) as V3, c: "#14171a" });
+          const lit = k % 3;
+          ["#ff5a4d", "#ffb547", "#46e08a"].forEach((col, n) => {
+            const y = 5.3 - n * 0.45;
+            const lx = hx + dx * 0.27;
+            const lz = hz + dz * 0.27;
+            if (n === lit) d.glow.push({ p: [lx, y, lz], s: [0.28, 0.28, 0.28], c: col });
+            else d.solids.push({ p: [lx, y, lz], s: [0.26, 0.26, 0.26], c: "#3a3e44" });
+            // visor
+            d.solids.push({ p: [lx + dx * 0.12, y + 0.17, lz + dz * 0.12], s: dx ? [0.25, 0.04, 0.34] : [0.34, 0.04, 0.25], c: HOUSING });
+          });
+          // Pedestrian crossing signal on the pole.
+          d.solids.push({ p: [px, 2.7, pz], s: [0.36, 0.5, 0.36], c: HOUSING });
+          d.glow.push({ p: [px - sx * 0.19, 2.7, pz], s: [0.04, 0.3, 0.26], c: lit === 2 ? "#f4f4f4" : "#ff8a3d" });
+          d.solids.push({ p: [px, 1.1, pz], s: [0.22, 0.28, 0.16], c: "#d9b23a" });
           k++;
         }
       }
