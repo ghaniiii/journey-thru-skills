@@ -2,11 +2,11 @@
 
 - [x] Fix hidden square collider at the centre roundabout
 - [ ] City visual polish (from uploaded notes)
-  - [ ] Building variation: setbacks, roof types, balconies, storefront signs
-  - [ ] Sidewalk zones (walk strip + furniture strip), benches, bins, planters
-  - [ ] Street trees along roads
-  - [ ] Traffic signal assemblies (pole, arm, housing, visors, pedestrian signals)
-  - [ ] Landscaped roundabout
-  - [ ] Parked cars along avenues
+  - [x] Building variation: setbacks, fins, canopies, antennas, flat/pitched roofs, balconies, L-wings
+  - [x] Sidewalk zones (walk strip + furniture strip), curbs, paving joints, benches, bins, planters
+  - [x] Street trees along roads
+  - [x] Traffic signal assemblies (pole, arm, housing, visors, pedestrian signals)
+  - [x] Landscaped roundabout
+  - [x] Parked cars (driveways, parking lot)
   - [ ] Moving traffic / pedestrians
   - [ ] Better truck detail, distant skyline/hills
