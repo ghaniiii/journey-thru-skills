@@ -56,8 +56,8 @@ export function Vehicle() {
       ...zones.map((z) => ({
         x: z.position[0],
         z: z.position[1],
-        hx: z.size[0] / 2 + 0.6,
-        hz: z.size[2] / 2 + 0.6,
+        hx: z.size[0] / 2 + 0.1,
+        hz: z.size[2] / 2 + 0.1,
       })),
       ...city.obstacles,
     ],
