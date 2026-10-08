@@ -57,12 +57,18 @@ export function createVehicleState(): VehicleState {
 }
 
 /** Overlap test for the car's footprint against static boxes and circles. */
-function hits(x: number, z: number, obstacles: Obstacle[], halfW = 1.3, halfL = 2.2) {
-  const r = Math.max(halfW, halfL);
+function hits(x: number, z: number, yaw: number, obstacles: Obstacle[], halfW = 1.05, halfL = 2.0) {
+  // Rotated footprint projected onto the world axes (tight AABB of the truck body).
+  const c = Math.abs(Math.cos(yaw));
+  const sn = Math.abs(Math.sin(yaw));
+  const ex = sn * halfL + c * halfW;
+  const ez = c * halfL + sn * halfW;
   for (const o of obstacles) {
     if (o.r !== undefined) {
-      if (Math.hypot(x - o.x, z - o.z) < o.r + r * 0.7) return true;
-    } else if (Math.abs(x - o.x) < o.hx + r && Math.abs(z - o.z) < o.hz + r) return true;
+      const dx = Math.max(Math.abs(x - o.x) - ex, 0);
+      const dz = Math.max(Math.abs(z - o.z) - ez, 0);
+      if (Math.hypot(dx, dz) < o.r) return true;
+    } else if (Math.abs(x - o.x) < o.hx + ex && Math.abs(z - o.z) < o.hz + ez) return true;
   }
   return false;
 }
@@ -104,11 +110,11 @@ export function updateVehicle(
 
   // Per-axis integration so the car slides along walls instead of sticking.
   const nx = s.px + s.vx * dt;
-  if (!hits(nx, s.pz, obstacles)) s.px = nx;
+  if (!hits(nx, s.pz, s.yaw, obstacles)) s.px = nx;
   else s.vx *= -0.2;
 
   const nz = s.pz + s.vz * dt;
-  if (!hits(s.px, nz, obstacles)) s.pz = nz;
+  if (!hits(s.px, nz, s.yaw, obstacles)) s.pz = nz;
   else s.vz *= -0.2;
 
   s.px = Math.max(-bound, Math.min(bound, s.px));

@@ -344,7 +344,7 @@ function tower(d: CityData, x: number, z: number, w: number, dd: number, h: numb
   // Entrance canopy
   d.solids.push({ p: [x, B + 2.7, z + dd / 2 + 0.8], s: [w * 0.4, 0.15, 1.6], c: "#3c4148" });
   d.glow.push({ p: [x, B + 2.6, z + dd / 2 + 0.8], s: [w * 0.3, 0.04, 1.2], c: "#fff0c8" });
-  d.obstacles.push({ x, z, hx: w / 2 + 0.3, hz: dd / 2 + 0.3 });
+  d.obstacles.push({ x, z, hx: w / 2, hz: dd / 2 });
 }
 
 function shop(d: CityData, x: number, z: number, s: number, h: number, fx: number, fz: number, rand: Rand, pick: Pick) {
@@ -361,7 +361,7 @@ function shop(d: CityData, x: number, z: number, s: number, h: number, fx: numbe
     c: rand() > 0.5 ? "#ffe9a8" : "#bdf2ff",
   });
   d.solids.push({ p: [x, B + h + 0.2, z], s: [s + 0.2, 0.4, s + 0.2], c: "#7b7f84" });
-  d.obstacles.push({ x, z, hx: s / 2 + 0.3, hz: s / 2 + 0.3 });
+  d.obstacles.push({ x, z, hx: s / 2, hz: s / 2 });
 }
 
 function parkedCarBay(d: CityData, x: number, z: number, rand: Rand) {
@@ -415,7 +415,7 @@ function house(d: CityData, x: number, z: number, w: number, dd: number, fx: num
     c: "#6b4a33",
   });
   d.solids.push({ p: [x, B + 0.08, z + fz * (dd / 2 + 0.6)], s: [1.1, 0.16, 1], c: "#cfc8ba" });
-  d.obstacles.push({ x, z, hx: w / 2 + 0.3, hz: dd / 2 + 0.3 });
+  d.obstacles.push({ x, z, hx: w / 2, hz: dd / 2 });
   // Car on the driveway beside the house.
   if (rand() > 0.45) parkedCar(d, x + w / 2 + 1.2, z + fz * (dd / 2 + 1.2), false, rand);
 }
