@@ -30,18 +30,6 @@ interface GameState {
   openGarage: () => void;
   closeGarage: () => void;
   setNearGarage: (v: boolean) => void;
-  carId: savedCar(),
-  garageOpen: false,
-  nearGarage: false,
-  setCar: (id) => {
-    window.localStorage.setItem(CAR_KEY, id);
-    set({ carId: id });
-  },
-  openGarage: () => set({ garageOpen: true, openSection: null }),
-  closeGarage: () => set({ garageOpen: false }),
-  setNearGarage: (v) => {
-    if (get().nearGarage !== v) set({ nearGarage: v });
-  },
   enterWorld: () => void;
   setNearby: (id: SectionId | null) => void;
   openPanel: (id: SectionId) => void;
@@ -59,6 +47,18 @@ export const useGameStore = create<GameState>((set, get) => ({
   muted: true,
   eggFound: false,
   touch: { forward: 0, steer: 0, jump: false, nitro: false },
+  carId: savedCar(),
+  garageOpen: false,
+  nearGarage: false,
+  setCar: (id) => {
+    window.localStorage.setItem(CAR_KEY, id);
+    set({ carId: id });
+  },
+  openGarage: () => set({ garageOpen: true, openSection: null }),
+  closeGarage: () => set({ garageOpen: false }),
+  setNearGarage: (v) => {
+    if (get().nearGarage !== v) set({ nearGarage: v });
+  },
   enterWorld: () => set({ entered: true }),
   setNearby: (id) => {
     if (get().nearby !== id) set({ nearby: id });
