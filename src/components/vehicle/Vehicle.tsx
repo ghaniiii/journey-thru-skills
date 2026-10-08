@@ -9,6 +9,7 @@ import { WORLD_BOUND, eggPosition, zones } from "@/data/zones";
 import { city } from "@/lib/cityGen";
 import type { SectionId } from "@/data/portfolio";
 import { TruckModel } from "./TruckModel";
+import { GARAGE_POS, GARAGE_RADIUS, findCar } from "@/data/cars";
 
 const idealOffset = new THREE.Vector3(0, 6.2, -13);
 const idealLookAt = new THREE.Vector3(0, 1.8, 10);
@@ -39,6 +40,7 @@ interface Particle {
 }
 
 export function Vehicle() {
+  const car = findCar(useGameStore((st) => st.carId));
   const bodyRef = useRef<THREE.Group>(null);
   const leanRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.InstancedMesh>(null);
@@ -176,6 +178,7 @@ export function Vehicle() {
       }
     }
     store.setNearby(nearest);
+    store.setNearGarage(Math.hypot(s.px - GARAGE_POS[0], s.pz - GARAGE_POS[1]) < GARAGE_RADIUS);
 
     if (!store.eggFound && Math.hypot(s.px - eggPosition[0], s.pz - eggPosition[1]) < 7) {
       store.findEgg();
@@ -196,7 +199,7 @@ export function Vehicle() {
               </mesh>
             }
           >
-            <TruckModel />
+            <TruckModel key={car.id} url={car.url} scale={car.scale} />
           </Suspense>
           {[-0.7, 0.7].map((x) => (
             <mesh key={x} position={[x, 0.85, 2.25]}>

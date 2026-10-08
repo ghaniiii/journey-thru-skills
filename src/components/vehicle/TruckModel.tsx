@@ -1,12 +1,12 @@
 import { useGLTF, useTexture } from "@react-three/drei";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import truckAsset from "@/assets/offroad-4x4.glb.asset.json";
+import { cars } from "@/data/cars";
 import colormapAsset from "@/assets/truck-colormap.png.asset.json";
 
-/** CC0 Kenney 4x4 (logo-free). Its colour atlas ships separately, so we apply it here. */
-export function TruckModel() {
-  const { scene } = useGLTF(truckAsset.url);
+/** CC0 Kenney Car Kit vehicle (logo-free). Its colour atlas ships separately, so we apply it here. */
+export function TruckModel({ url, scale }: { url: string; scale: number }) {
+  const { scene } = useGLTF(url);
   const colormap = useTexture(colormapAsset.url);
   const truck = useMemo(() => scene.clone(true), [scene]);
 
@@ -29,10 +29,10 @@ export function TruckModel() {
   }, [truck, colormap]);
 
   return (
-    <group scale={1.62}>
+    <group scale={scale}>
       <primitive object={truck} />
     </group>
   );
 }
 
-useGLTF.preload(truckAsset.url);
+for (const c of cars) useGLTF.preload(c.url);

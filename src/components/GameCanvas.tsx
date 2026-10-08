@@ -5,6 +5,7 @@ import { Hud } from "@/components/ui/Hud";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { MobileControls } from "@/components/ui/MobileControls";
 import { PortfolioPanel } from "@/components/portfolio/PortfolioPanel";
+import { GaragePanel } from "@/components/ui/GaragePanel";
 import { StaticPortfolio } from "@/components/portfolio/StaticPortfolio";
 import { useGameStore } from "@/store/useGameStore";
 import { usePortfolioInteraction } from "@/hooks/usePortfolioInteraction";
@@ -55,6 +56,7 @@ export function GameCanvas() {
           <Hud />
           {isTouch && !openSection && <MobileControls />}
           {openSection && <PortfolioPanel id={openSection} onClose={closePanel} />}
+          <GaragePanel />
         </>
       ) : (
         <LoadingScreen onEnter={enterWorld} />
