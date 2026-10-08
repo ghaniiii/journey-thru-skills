@@ -1,5 +1,12 @@
 import { create } from "zustand";
 import type { SectionId } from "@/data/portfolio";
+import type { CarId } from "@/data/cars";
+
+const CAR_KEY = "agk-portfolio-car";
+function savedCar(): CarId {
+  if (typeof window === "undefined") return "offroad";
+  return (window.localStorage.getItem(CAR_KEY) as CarId | null) ?? "offroad";
+}
 
 export interface TouchInput {
   forward: number;
@@ -16,6 +23,25 @@ interface GameState {
   muted: boolean;
   eggFound: boolean;
   touch: TouchInput;
+  carId: CarId;
+  garageOpen: boolean;
+  nearGarage: boolean;
+  setCar: (id: CarId) => void;
+  openGarage: () => void;
+  closeGarage: () => void;
+  setNearGarage: (v: boolean) => void;
+  carId: savedCar(),
+  garageOpen: false,
+  nearGarage: false,
+  setCar: (id) => {
+    window.localStorage.setItem(CAR_KEY, id);
+    set({ carId: id });
+  },
+  openGarage: () => set({ garageOpen: true, openSection: null }),
+  closeGarage: () => set({ garageOpen: false }),
+  setNearGarage: (v) => {
+    if (get().nearGarage !== v) set({ nearGarage: v });
+  },
   enterWorld: () => void;
   setNearby: (id: SectionId | null) => void;
   openPanel: (id: SectionId) => void;
