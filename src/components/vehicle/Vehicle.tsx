@@ -40,6 +40,7 @@ interface Particle {
 }
 
 export function Vehicle() {
+  const car = findCar(useGameStore((st) => st.carId));
   const bodyRef = useRef<THREE.Group>(null);
   const leanRef = useRef<THREE.Group>(null);
   const trailRef = useRef<THREE.InstancedMesh>(null);

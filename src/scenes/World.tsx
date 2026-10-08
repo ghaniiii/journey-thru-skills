@@ -4,6 +4,7 @@ import { City } from "@/components/world/City";
 import { Ground } from "@/components/world/Ground";
 import { Landmark } from "@/components/world/Landmark";
 import { Plaza } from "@/components/world/Plaza";
+import { Garage } from "@/components/world/Garage";
 import { Vehicle } from "@/components/vehicle/Vehicle";
 import { zones } from "@/data/zones";
 
@@ -48,6 +49,7 @@ export function World({ lowQuality }: { lowQuality: boolean }) {
       <Ground />
       <City />
       <Plaza />
+      <Garage />
       {!lowQuality && <Decor />}
       {zones.map((zone) => (
         <Landmark key={zone.id} zone={zone} />

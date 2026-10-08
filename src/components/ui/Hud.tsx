@@ -25,6 +25,9 @@ export function Hud() {
   const toggleMute = useGameStore((s) => s.toggleMute);
   const visited = useGameStore((s) => s.visited);
 
+  const nearGarage = useGameStore((s) => s.nearGarage);
+  const garageOpen = useGameStore((s) => s.garageOpen);
+  const openGarage = useGameStore((s) => s.openGarage);
   const zone = zones.find((z) => z.id === nearby);
 
   return (
@@ -49,6 +52,9 @@ export function Hud() {
             }}
           >
             {muted ? "Sound off" : "Sound on"}
+          </button>
+          <button type="button" className="btn btn--ghost" onClick={openGarage}>
+            Garage
           </button>
           <a className="btn btn--ghost" href={portfolio.personal.cv} download>
             CV
@@ -82,7 +88,16 @@ export function Hud() {
         </nav>
       )}
 
-      {!openSection && zone && (
+      {!openSection && !garageOpen && nearGarage && (
+        <div className="prompt" role="status">
+          <span className="prompt__label">GARAGE</span>
+          <span className="prompt__key">
+            Press <kbd>E</kbd> to change your car
+          </span>
+        </div>
+      )}
+
+      {!openSection && !garageOpen && !nearGarage && zone && (
         <div className="prompt" role="status">
           <span className="prompt__label">{zone.label}</span>
           <span className="prompt__key">
@@ -91,7 +106,7 @@ export function Hud() {
         </div>
       )}
 
-      {!openSection && !zone && (
+      {!openSection && !garageOpen && !nearGarage && !zone && (
         <div className="hud__hint">
           <kbd>W</kbd>
           <kbd>A</kbd>
